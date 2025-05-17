@@ -13,8 +13,6 @@ const nextConfig = {
   },
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   trailingSlash: true,
-  // ❌ Eliminar esta parte ↓
-  // ...(process.env.EXPORT_STATIC === 'true' ? { output: 'export' } : {}),
 };
 
 module.exports = nextConfig;
