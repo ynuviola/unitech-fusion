@@ -1,4 +1,4 @@
-import { getSubscribers } from '../lib/db';
+import { getSubscribers } from '../src/lib/db';
 import fs from 'fs';
 import path from 'path';
 
