@@ -1,0 +1,47 @@
+{
+  "name": "unitech-fusion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next build && next export",
+    "init-db": "npx ts-node --project tsconfig-scripts.json src/scripts/init-database.ts",
+    "export-subscribers": "npx ts-node --project tsconfig-scripts.json src/scripts/export-subscribers.ts",
+    "clean": "rimraf .next"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "@types/node-fetch": "^2.6.12",
+    "@types/react-google-recaptcha": "^2.1.9",
+    "dotenv": "^16.5.0",
+    "formidable": "^3.5.4",
+    "framer-motion": "^10.12.16",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.1",
+    "next": "13.4.4",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^6.10.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-google-recaptcha": "^3.1.0",
+    "react-quill": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "20.2.5",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "18.2.8",
+    "@types/react-dom": "18.2.4",
+    "autoprefixer": "10.4.14",
+    "eslint": "8.42.0",
+    "eslint-config-next": "13.4.4",
+    "postcss": "8.4.24",
+    "tailwindcss": "3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "5.1.3"
+  }
+}
