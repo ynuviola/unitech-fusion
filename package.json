@@ -7,14 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build && next export",
+    "export-static": "node scripts/export-static.js",
     "init-db": "npx ts-node --project tsconfig-scripts.json src/scripts/init-database.ts",
     "export-subscribers": "npx ts-node --project tsconfig-scripts.json src/scripts/export-subscribers.ts",
-    "clean": "rimraf .next"
+    "clean": "rimraf .next out"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
-    "@types/node-fetch": "^2.6.12",
     "@types/react-google-recaptcha": "^2.1.9",
     "dotenv": "^16.5.0",
     "formidable": "^3.5.4",
@@ -22,7 +21,6 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
     "next": "13.4.4",
-    "node-fetch": "^2.7.0",
     "nodemailer": "^6.10.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",

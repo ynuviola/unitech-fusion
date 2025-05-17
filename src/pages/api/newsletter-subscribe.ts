@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { addSubscriber, isEmailRegistered } from '../../lib/db';
+import { isEmailRegisteredInSupabase, migrateSubscriberToSupabase } from '../../lib/supabase';
 import dotenv from 'dotenv';
 
 // Cargar variables de entorno
@@ -20,7 +20,7 @@ async function verifyCaptcha(captchaValue: string) {
     const data = await response.json();
     return data.success;
   } catch (error) {
-    console.error('Error verificando captcha:', error);
+    console.error('Error al verificar captcha:', error);
     return false;
   }
 }
@@ -29,71 +29,61 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log('Newsletter subscription endpoint called');
-  
+  // Solo permitir método POST
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { email, nombre, captchaValue } = req.body;
-  
-  console.log('Datos recibidos:', { email, nombre, captchaValue: captchaValue ? 'Presente' : 'No presente' });
-
-  // Verificar que se proporcionó un email
-  if (!email) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'El correo electrónico es obligatorio.' 
-    });
-  }
-
-  // Verificar el captcha
-  if (captchaValue) {
-    const isCaptchaValid = await verifyCaptcha(captchaValue);
-    console.log('Resultado de verificación de captcha:', isCaptchaValid);
+  try {
+    const { email, nombre, captchaValue } = req.body;
     
+    // Validar email
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Por favor, introduce un correo electrónico válido.' 
+      });
+    }
+    
+    // Verificar captcha
+    if (!captchaValue) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Por favor, complete el captcha para verificar que no es un robot.' 
+      });
+    }
+    
+    const isCaptchaValid = await verifyCaptcha(captchaValue);
     if (!isCaptchaValid) {
       return res.status(400).json({ 
         success: false, 
         message: 'Verificación de captcha fallida. Por favor, inténtelo de nuevo.' 
       });
     }
-  } else {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Se requiere verificación de captcha.' 
-    });
-  }
-
-  try {
-    // Verificar si el correo ya está registrado
-    const emailExists = await isEmailRegistered(email);
-    console.log('¿El email ya existe?', emailExists);
     
-    if (emailExists) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Ya estás suscrito a nuestro newsletter.' 
+    // Verificar si el email ya está registrado
+    const isRegistered = await isEmailRegisteredInSupabase(email);
+    if (isRegistered) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Este correo electrónico ya está suscrito a nuestro newsletter.' 
       });
     }
-
-    // Guardar el suscriptor en la base de datos
-    const result = await addSubscriber(email, nombre || 'Suscriptor al Newsletter');
-    console.log('Resultado de añadir suscriptor:', result);
-
-    if (!result.success) {
-      throw new Error(result.error || 'Error al registrar suscriptor');
-    }
-
-    res.status(200).json({ 
+    
+    // Agregar suscriptor a la base de datos
+    await migrateSubscriberToSupabase(email, nombre || '');
+    
+    // Responder con éxito
+    return res.status(200).json({ 
       success: true, 
-      message: '¡Gracias por suscribirte a nuestro newsletter!' 
+      message: '¡Gracias por suscribirte! Recibirás nuestras actualizaciones.' 
     });
-  } catch (error: any) {
+    
+  } catch (error) {
     console.error('Error al procesar la suscripción:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false, 
-      message: 'Error al procesar la suscripción. Por favor, inténtelo de nuevo.' 
+      message: 'Error al procesar la suscripción. Por favor, inténtelo de nuevo más tarde.' 
     });
   }
 }
